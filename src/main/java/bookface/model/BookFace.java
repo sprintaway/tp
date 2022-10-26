@@ -118,7 +118,7 @@ public class BookFace implements ReadOnlyBookFace {
      */
     public void deleteBook(Book book) {
         books.delete(book);
-        persons.refreshUserListAfterDeletingBook(book);
+        //persons.refreshUserListAfterDeletingBook(book);
     }
 
     /**
@@ -136,9 +136,15 @@ public class BookFace implements ReadOnlyBookFace {
      * Loans to the person {@code person} in the user list with the book {@code book} in the book list.
      * {@code person} and {@code book} must exist in BookFace.
      */
+<<<<<<< HEAD
     public void loan(Person person, Book book, Date returnDate) {
         CollectionUtil.requireAllNonNull(person, book, returnDate);
         if (book.isLoaned()) {
+=======
+    public void loan(Person person, Book book) {
+        CollectionUtil.requireAllNonNull(person, book);
+        if (book.getLoanees().contains(person) || book.getQuantity() == 0) {
+>>>>>>> 4d22afe269d80a37ec9232e2286248e75877a31f
             return;
         }
         books.loan(person, book, returnDate);
@@ -149,12 +155,13 @@ public class BookFace implements ReadOnlyBookFace {
      * Loans to the person {@code person} in the user list with the book {@code book} in the book list.
      * {@code person} and {@code book} must exist in BookFace.
      */
-    public void returnLoanedBook(Book book) {
-        CollectionUtil.requireAllNonNull(book);
-        if (!book.isLoaned()) {
+    public void returnLoanedBook(Person person, Book book) {
+        CollectionUtil.requireAllNonNull(person, book);
+        //todo: we may need to store the initial book quantity somewhere for tracking
+        if (!book.getLoanees().contains(person)) {
             return;
         }
-        books.returnLoanedBook(book);
+        books.returnLoanedBook(person, book);
         persons.returnLoanedBook(book);
     }
 
@@ -164,7 +171,7 @@ public class BookFace implements ReadOnlyBookFace {
      */
     public void removePerson(Person key) {
         persons.remove(key);
-        books.refreshBookListAfterDeletingUser(key);
+        //books.refreshBookListAfterDeletingUser(key);
     }
 
 

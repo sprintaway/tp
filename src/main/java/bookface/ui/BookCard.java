@@ -34,7 +34,11 @@ public class BookCard extends UiPart<Region> {
     @FXML
     private Label loanStatus;
     @FXML
+<<<<<<< HEAD
     private Label returnBy;
+=======
+    private Label quantity;
+>>>>>>> 4d22afe269d80a37ec9232e2286248e75877a31f
 
     /**
      * Creates a {@code BookCode} with the given {@code book} and index to display.
@@ -45,6 +49,7 @@ public class BookCard extends UiPart<Region> {
         id.setText(displayedIndex + ". ");
         title.setText(book.getTitle().bookTitle);
         author.setText(book.getAuthor().bookAuthor);
+        quantity.setText(String.valueOf(book.getQuantity()));
         loanStatus.setText(book.getLoanStatus());
         returnBy.setText(book.getReturnDateString());
     }

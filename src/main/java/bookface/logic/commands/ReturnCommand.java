@@ -9,6 +9,7 @@ import bookface.commons.core.index.Index;
 import bookface.logic.commands.exceptions.CommandException;
 import bookface.model.Model;
 import bookface.model.book.Book;
+import bookface.model.person.Person;
 
 /**
  * Loans to the user in the user list a book from the book list.
@@ -27,11 +28,13 @@ public class ReturnCommand extends Command {
     public static final String NOT_ON_LOAN = "Book is already loaned out.";
 
     private final Index targetBookIndex;
+    private final Index targetUserIndex;
 
     /**
      * Creates a ReturnCommand to return the loan of the specified {@code Book}
      */
-    public ReturnCommand(Index bookIndex) {
+    public ReturnCommand(Index userIndex, Index bookIndex) {
+        this.targetUserIndex = userIndex;
         this.targetBookIndex = bookIndex;
     }
 
@@ -40,18 +43,20 @@ public class ReturnCommand extends Command {
         requireNonNull(model);
 
         List<Book> lastShownBookList = model.getFilteredBookList();
+        List<Person> lastShownPersonList = model.getFilteredPersonList();
 
         if (targetBookIndex.getZeroBased() >= lastShownBookList.size()) {
             throw new CommandException(Messages.MESSAGE_INVALID_BOOK_DISPLAYED_INDEX);
         }
 
         Book bookToReturn = lastShownBookList.get(targetBookIndex.getZeroBased());
+        Person loanee = lastShownPersonList.get(targetUserIndex.getZeroBased());
 
         if (!bookToReturn.isLoaned()) {
             throw new CommandException(NOT_ON_LOAN);
         }
 
-        model.returnLoanedBook(bookToReturn);
+        model.returnLoanedBook(loanee, bookToReturn);
         model.updateFilteredBookList(Model.PREDICATE_SHOW_ALL_BOOKS);
         return new CommandResult(String.format(MESSAGE_RETURN_SUCCESS, bookToReturn.getTitle()));
     }

@@ -5,10 +5,12 @@ import static java.util.Objects.requireNonNull;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import bookface.commons.util.CollectionUtil;
 import bookface.model.book.Book;
 import bookface.model.person.exceptions.DuplicatePersonException;
+import bookface.model.person.exceptions.PersonLoansExistException;
 import bookface.model.person.exceptions.PersonNotFoundException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -71,15 +73,16 @@ public class UniquePersonList implements Iterable<Person> {
     }
 
     /**
-     * Returns all books that are loaned by the user.
-     * The person must exist in the list.
+     * Remove the person from the Person List
+     * If a {@code Person} has books that are not returned,
+     * that {@code Person} will not be removed and an exception
+     * will be thrown
      */
     public void remove(Person toRemove) {
         requireNonNull(toRemove);
-        for (Book book : toRemove.getLoanedBooksSet()) {
-            book.markBookAsReturned();
-        }
-        if (!internalList.remove(toRemove)) {
+        if (toRemove.hasBooksOnLoan()) {
+            throw new PersonLoansExistException();
+        } else if (!internalList.remove(toRemove)) {
             throw new PersonNotFoundException();
         }
     }
@@ -153,12 +156,14 @@ public class UniquePersonList implements Iterable<Person> {
     /**
      * Refreshes the user list after deleting book {@code book} that has been loaned to a user.
      */
-    public void refreshUserListAfterDeletingBook(Book book) {
-        CollectionUtil.requireAllNonNull(book);
-        Person person = book.getLoanee();
-        int index = internalList.indexOf(person);
-        internalList.set(index, person);
-    }
+//    public void refreshUserListAfterDeletingBook(Book book) {
+//        CollectionUtil.requireAllNonNull(book);
+//        for (Person person : book.getLoanees()) {
+//            book.markBookAsReturned();
+//            int index = internalList.indexOf(book);
+//            internalList.set(index, book);
+//        }
+//    }
 
     /**
      * Returns the {@code book} loan.

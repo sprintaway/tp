@@ -8,6 +8,7 @@ import java.util.List;
 
 import bookface.commons.util.CollectionUtil;
 import bookface.model.book.exceptions.BookNotFoundException;
+import bookface.model.book.exceptions.BookOnLoanException;
 import bookface.model.book.exceptions.DuplicateBookException;
 import bookface.model.person.Person;
 import javafx.collections.FXCollections;
@@ -44,14 +45,14 @@ public class BookList implements Iterable<Book> {
 
     /**
      * Removes the book specified from BookList.
-     * The book must exist in the list.
+     * If the {@code Book} is currently loaned, it will not be removed
+     * and an exception will be thrown
      */
     public void delete(Book book) {
         requireNonNull(book);
         if (book.isLoaned()) {
-            book.getLoanee().returnLoanedBook(book);
-        }
-        if (!internalList.remove(book)) {
+            throw new BookOnLoanException();
+        } else if (!internalList.remove(book)) {
             throw new BookNotFoundException();
         }
     }
@@ -59,14 +60,14 @@ public class BookList implements Iterable<Book> {
     /**
      * Refreshes the book list after deleting user {@code person} that has loaned books.
      */
-    public void refreshBookListAfterDeletingUser(Person person) {
-        requireNonNull(person);
-        for (Book book : person.getLoanedBooksSet()) {
-            book.markBookAsReturned();
-            int index = internalList.indexOf(book);
-            internalList.set(index, book);
-        }
-    }
+//    public void refreshBookListAfterDeletingUser(Person person) {
+//        requireNonNull(person);
+//        for (Book book : person.getLoanedBooksSet()) {
+//            book.markBookAsReturned();
+//            int index = internalList.indexOf(book);
+//            internalList.set(index, book);
+//        }
+//    }
 
 
     public void setBooks(BookList replacement) {
@@ -137,9 +138,9 @@ public class BookList implements Iterable<Book> {
     /**
      * Returns loan of a book {@code book} .
      */
-    public void returnLoanedBook(Book book) {
-        CollectionUtil.requireAllNonNull(book);
-        book.markBookAsReturned();
+    public void returnLoanedBook(Person person, Book book) {
+        CollectionUtil.requireAllNonNull(person, book);
+        book.returnBook(person);
         int index = internalList.indexOf(book);
         internalList.set(index, book);
     }

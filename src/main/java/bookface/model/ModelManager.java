@@ -140,9 +140,9 @@ public class ModelManager implements Model {
     }
 
     @Override
-    public void returnLoanedBook(Book book) {
-        CollectionUtil.requireAllNonNull(book);
-        bookFace.returnLoanedBook(book);
+    public void returnLoanedBook(Person person, Book book) {
+        CollectionUtil.requireAllNonNull(person, book);
+        bookFace.returnLoanedBook(person, book);
     }
 
     //=========== Filtered Person List Accessors =============================================================
@@ -195,5 +195,4 @@ public class ModelManager implements Model {
                 && filteredPersons.equals(other.filteredPersons)
                 && filteredBooks.equals(other.filteredBooks);
     }
-
 }
