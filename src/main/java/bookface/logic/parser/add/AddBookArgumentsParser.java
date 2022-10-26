@@ -1,8 +1,5 @@
 package bookface.logic.parser.add;
 
-import static bookface.logic.parser.CliSyntax.PREFIX_AUTHOR;
-import static bookface.logic.parser.CliSyntax.PREFIX_TITLE;
-
 import java.util.stream.Stream;
 
 import bookface.commons.core.Messages;
@@ -17,6 +14,8 @@ import bookface.model.book.Author;
 import bookface.model.book.Book;
 import bookface.model.book.Title;
 
+import static bookface.logic.parser.CliSyntax.*;
+
 /**
  * Parses input arguments and creates the relevant new AddCommand object for the relevant entity to be added
  */
@@ -24,10 +23,10 @@ public class AddBookArgumentsParser implements ArgumentsParsable<AddBookCommand>
     @Override
     public AddBookCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenize(args, PREFIX_TITLE, PREFIX_AUTHOR);
+                ArgumentTokenizer.tokenize(args, PREFIX_TITLE, PREFIX_AUTHOR, PREFIX_QUANTITY);
 
         //todo might be better to rewrite these checks using Optional.isPresent and Optional.orElseThrow
-        if (!arePrefixesPresent(argMultimap, PREFIX_TITLE, PREFIX_AUTHOR)
+        if (!arePrefixesPresent(argMultimap, PREFIX_TITLE, PREFIX_AUTHOR, PREFIX_QUANTITY)
                 || !argMultimap.getPreamble().isEmpty()) {
             throw new ParseException(String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT,
                     AddBookCommand.MESSAGE_USAGE));
@@ -35,8 +34,9 @@ public class AddBookArgumentsParser implements ArgumentsParsable<AddBookCommand>
 
         Author author = ParserUtil.parseAuthor(argMultimap.getValue(PREFIX_AUTHOR).get());
         Title title = ParserUtil.parseTitle(argMultimap.getValue(PREFIX_TITLE).get());
+        int quantity = ParserUtil.parseQuantity(argMultimap.getValue(PREFIX_QUANTITY).get());
 
-        Book book = new Book(title, author);
+        Book book = new Book(title, author, quantity);
         return new AddBookCommand(book);
     }
 

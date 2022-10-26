@@ -14,17 +14,21 @@ import bookface.model.book.Title;
 class JsonAdaptedBook {
 
     public static final String MISSING_FIELD_MESSAGE_FORMAT = "Book's %s field is missing!";
+    public static final String INVALID_VALUE_MESSAGE = "The value of Quantity is invalid; it's less than 1!";
 
     private final String title;
     private final String author;
+    private final int quantity;
 
     /**
      * Constructs a {@code JsonAdaptedBook} with the given book details.
      */
     @JsonCreator
-    public JsonAdaptedBook(@JsonProperty("title") String title, @JsonProperty("author") String author) {
+    public JsonAdaptedBook(@JsonProperty("title") String title, @JsonProperty("author") String author,
+                           @JsonProperty("quantity") int quantity) {
         this.title = title;
         this.author = author;
+        this.quantity = quantity;
     }
 
     /**
@@ -33,6 +37,7 @@ class JsonAdaptedBook {
     public JsonAdaptedBook(Book source) {
         title = source.getTitle().bookTitle;
         author = source.getAuthor().bookAuthor;
+        quantity = source.getQuantity();
     }
 
     /**
@@ -57,7 +62,12 @@ class JsonAdaptedBook {
         }
         final Author modelAuthor = new Author(author);
 
-        return new Book(modelTitle, modelAuthor);
+        if (quantity < 1) {
+            throw new IllegalValueException(INVALID_VALUE_MESSAGE);
+        }
+        final int modelQuantity = this.quantity;
+
+        return new Book(modelTitle, modelAuthor, modelQuantity);
     }
 }
 

@@ -1,7 +1,6 @@
 package bookface.logic.commands.add;
 
-import static bookface.logic.parser.CliSyntax.PREFIX_AUTHOR;
-import static bookface.logic.parser.CliSyntax.PREFIX_TITLE;
+import static bookface.logic.parser.CliSyntax.*;
 import static java.util.Objects.requireNonNull;
 
 import bookface.logic.commands.CommandResult;
@@ -19,12 +18,14 @@ public class AddBookCommand extends AddCommand {
             + ": Adds a book to the book list."
             + "Parameters: "
             + PREFIX_TITLE + "TITLE "
-            + PREFIX_AUTHOR + "AUTHOR\n"
+            + PREFIX_AUTHOR + "AUTHOR "
+            + PREFIX_QUANTITY + "QUANTITY\n"
             + "Example: " + AddCommand.COMMAND_WORD
             + " " + COMMAND_WORD + " "
             + PREFIX_TITLE + "The Hobbit "
-            + PREFIX_AUTHOR + "JRR Tolkien";
-    public static final String MESSAGE_SUCCESS = "New book added: %s by %s";
+            + PREFIX_AUTHOR + "JRR Tolkien "
+            + PREFIX_QUANTITY + "3";
+    public static final String MESSAGE_SUCCESS = "New book added: %s by %s\nBook has a quantity of %d";
     public static final String MESSAGE_DUPLICATE_BOOK = "This book is already in our records.";
     private final Book bookToAdd;
 
@@ -49,6 +50,7 @@ public class AddBookCommand extends AddCommand {
         return new CommandResult(String.format(
                 MESSAGE_SUCCESS,
                 this.bookToAdd.getTitle(),
-                this.bookToAdd.getAuthor()));
+                this.bookToAdd.getAuthor(),
+                this.bookToAdd.getQuantity()));
     }
 }

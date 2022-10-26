@@ -10,7 +10,7 @@ import bookface.logic.parser.exceptions.ParseException;
  */
 public class ReturnCommandParser implements Parser<ReturnCommand> {
 
-    public static final String VALIDATION_REGEX = "(\\d+)";
+    public static final String VALIDATION_REGEX = "(\\d+\\s+\\d+)";
 
     /**
      * Parses the given {@code String} of arguments in the context of the LoanCommand
@@ -30,9 +30,13 @@ public class ReturnCommandParser implements Parser<ReturnCommand> {
                     String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT, ReturnCommand.MESSAGE_USAGE));
         }
 
+        String[] nameKeywords = trimmedArgs.split("\\s+");
         try {
-            Index bookIndex = ParserUtil.parseIndex(trimmedArgs);
-            return new ReturnCommand(bookIndex);
+            String firstIndex = nameKeywords[0];
+            String secondIndex = nameKeywords[1];
+            Index userIndex = ParserUtil.parseIndex(firstIndex);
+            Index bookIndex = ParserUtil.parseIndex(secondIndex);
+            return new ReturnCommand(userIndex, bookIndex);
         } catch (ParseException pe) {
             throw new ParseException(
                     String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT, ReturnCommand.MESSAGE_USAGE), pe);

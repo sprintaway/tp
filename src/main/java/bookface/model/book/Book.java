@@ -1,6 +1,11 @@
 package bookface.model.book;
 
+import static java.util.Objects.requireNonNull;
+
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import bookface.commons.util.CollectionUtil;
 import bookface.model.person.Person;
@@ -13,15 +18,17 @@ import bookface.model.person.Person;
 public class Book {
     private final Title title;
     private final Author author;
-    private Person loanee = null;
+    private int quantity; // Quantity can't be final since increments/decrements are possible
+    private final HashSet<Person> loanees = new HashSet<>();
 
     /**
      * Every field must be present and not null.
      */
-    public Book(Title title, Author author) {
-        CollectionUtil.requireAllNonNull(title, author);
+    public Book(Title title, Author author, int quantity) {
+        CollectionUtil.requireAllNonNull(title, author, quantity);
         this.title = title;
         this.author = author;
+        this.quantity = quantity;
     }
 
     public Title getTitle() {
@@ -32,36 +39,46 @@ public class Book {
         return author;
     }
 
-    public Person getLoanee() {
-        return loanee;
+    public Set<Person> getLoanees() {
+        return loanees;
+    }
+
+    public int getQuantity() {
+        return quantity;
     }
 
     public boolean isLoaned() {
-        return this.loanee != null;
+        return !this.loanees.isEmpty();
     }
 
     public String getLoanStatus() {
+        String outputStatus = "Available"; // Book is available by default
         if (isLoaned()) {
-            return "Loaned to " + loanee.getName();
-        } else {
-            return "Available";
+            List<String> listOfLoanees = null;
+            for (Person person : this.loanees) {
+                listOfLoanees.add(person.getName().toString());
+            }
+            outputStatus = "Loaned to " + String.join(", ", listOfLoanees);
         }
+        return outputStatus;
     }
 
     /**
      * Loans this book to a patron.
+     * Method will decrement the quantity of the {@code Book} by 1
      *
      * @param loanee the person borrowing this book
      */
     public void loanTo(Person loanee) {
-        this.loanee = loanee;
+        this.loanees.add(loanee);
+        this.quantity--;
     }
 
     /**
-     * Return this loaned book .
+     * Return this loaned book from a patron.
      */
-    public void markBookAsReturned() {
-        this.loanee = null;
+    public void removeLoanneFromLoan(Person loanee) {
+        this.loanees.remove(loanee);
     }
 
     /**
@@ -75,6 +92,15 @@ public class Book {
 
         return otherBook != null
                 && otherBook.getTitle().equals(getTitle());
+    }
+
+    /**
+     * Returns the loaned book by removing the loanee
+     * Method will increment the quantity of the {@code Book} by 1
+     */
+    public void returnBook(Person person) {
+        this.loanees.remove(person);
+        this.quantity++;
     }
 
     /**
@@ -99,7 +125,7 @@ public class Book {
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(title, author);
+        return Objects.hash(title, author, quantity);
     }
 
     @Override
